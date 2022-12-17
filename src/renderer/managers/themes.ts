@@ -1,4 +1,6 @@
+import { loadStyleSheet } from "../util";
 import { Theme } from "../../types/addon";
+import { RepluggedTheme } from "@replugged";
 
 const themeElements = new Map<string, HTMLLinkElement>();
 
@@ -38,13 +40,10 @@ export function load(themeName: string): void {
     throw new Error(`Theme not found: ${themeName}`);
   }
   unload(themeName);
+
   const theme = themes.get(themeName)!;
-  const e = document.createElement("link");
-  e.rel = "stylesheet";
-  // This will need to change a little bit for the splash screen
-  e.href = `replugged://theme/${themeName}/${theme.main}`;
-  themeElements.set(themeName, e);
-  document.head.appendChild(e);
+  const el = loadStyleSheet(`replugged://theme/${themeName}/${theme.main}`);
+  themeElements.set(themeName, el);
 }
 
 /**
@@ -65,6 +64,26 @@ export function unloadAll(): void {
   for (const themeName of themeElements.keys()) {
     unload(themeName);
   }
+}
+
+/**
+ * Get a theme
+ *
+ * @remarks
+ * This may include themes that are not available until Discord is reloaded.
+ */
+export async function get(path: string): Promise<RepluggedTheme | null> {
+  return await list().then((x) => x.find((p) => p.manifest.id === path) || null);
+}
+
+/**
+ * List all themes
+ *
+ * @remarks
+ * This may include themes that are not available until Discord is reloaded.
+ */
+export async function list(): Promise<RepluggedTheme[]> {
+  return await window.RepluggedNative.themes.list();
 }
 
 /**
