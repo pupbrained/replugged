@@ -28,9 +28,8 @@ export const inject = async (
 
   if (appDir.includes("flatpak")) {
     const discordName = platform === "canary" ? "DiscordCanary" : "Discord";
-    const overrideCommand = `${
-      appDir.startsWith("/var") ? "sudo flatpak override" : "flatpak override --user"
-    } com.discordapp.${discordName} --filesystem=${join(__dirname, "..")}`;
+    const overrideCommand = `${appDir.startsWith("/var") ? "sudo flatpak override" : "flatpak override --user"
+      } com.discordapp.${discordName} --filesystem=${join(__dirname, "..")}`;
     const updateScript = `
     #!/bin/bash
     shopt -s globstar
