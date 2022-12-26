@@ -1,16 +1,17 @@
 import { signalStart, waitForReady } from "../modules/webpack";
 import { log } from "../modules/logger";
-import commonModules from "../modules/webpack-common";
 
 import * as coremods from "./coremods";
 import * as plugins from "./plugins";
 import * as themes from "./themes";
 import * as quickCSS from "./quick-css";
+import { loadStyleSheet } from "../util";
 
 export async function start(): Promise<void> {
   log("Ignition", "Start", void 0, "Igniting Replugged...");
   const startTime = performance.now();
 
+  loadStyleSheet("replugged://renderer.css");
   quickCSS.load();
   await Promise.all([
     coremods.startAll(),
@@ -60,9 +61,9 @@ Load order:
 export async function ignite(): Promise<void> {
   // This is the function that will be called when loading the window.
   coremods.runPlaintextPatches();
-  plugins.runPlaintextPatches();
+  await plugins.runPlaintextPatches();
   await waitForReady;
   signalStart();
-  await commonModules();
+  await import("../modules/webpack/common");
   await start();
 }

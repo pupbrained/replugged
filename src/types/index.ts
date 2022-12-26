@@ -23,6 +23,7 @@ export enum RepluggedIpcChannels {
   LIST_PLUGINS = "REPLUGGED_LIST_PLUGINS",
   GET_PLUGIN = "REPLUGGED_GET_PLUGIN",
   UNINSTALL_PLUGIN = "REPLUGGED_UNINSTALL_PLUGIN",
+  REGISTER_RELOAD = "REPLUGGED_REGISTER_RELOAD",
 }
 
 export interface RepluggedAnnouncement {
@@ -85,10 +86,8 @@ export interface RepluggedPlugin {
   manifest: Plugin;
 }
 
-export * from "./addon";
 export * from "./discord";
 export * from "./entities";
 export * from "./settings";
 export * from "./util";
 export * from "./webpack";
-export * from "./webpack-common";
