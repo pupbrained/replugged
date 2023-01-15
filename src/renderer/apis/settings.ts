@@ -1,3 +1,5 @@
+import type { Jsonifiable } from "type-fest";
+
 type SettingsUpdate<T> =
   | {
       type: "set";
@@ -18,7 +20,7 @@ type SettingsUpdate<T> =
  * Once the settings data has been copied into the `SettingsManager`, it can be read and written synchronously.
  * The `SettingsManager` automatically queues and dispatches updates to the file system in the background.
  */
-export class SettingsManager<T extends Record<string, unknown>> {
+export class SettingsManager<T extends Record<string, Jsonifiable>> {
   #settings: T | undefined;
   #saveTimeout: ReturnType<typeof setTimeout> | undefined;
   #queuedUpdates: Map<Extract<keyof T, string>, SettingsUpdate<T>>;
@@ -47,10 +49,14 @@ export class SettingsManager<T extends Record<string, unknown>> {
    * @param fallback Value to return if the key does not already exist.
    * @returns
    */
-  public get<K extends Extract<keyof T, string>>(key: K, fallback?: T[K]): T[K] | undefined {
+  public get<K extends Extract<keyof T, string>, F extends T[K] | undefined>(
+    key: K,
+    fallback?: F,
+  ): F extends null | undefined ? T[K] : NonNullable<T[K]> | F {
     if (typeof this.#settings === "undefined") {
       throw new Error(`Settings not loaded for namespace ${this.namespace}`);
     }
+    // @ts-expect-error It doesn't understand ig
     return this.#settings[key] ?? fallback;
   }
 
@@ -156,7 +162,7 @@ const managers = new Map<string, unknown>();
  * Settings for a namespace are stored in `settings/NAMESPACE.json` within the [Replugged data folder](https://docs.replugged.dev/#installing-plugins-and-themes).
  * @returns Manager for the namespace.
  */
-export async function init<T extends Record<string, unknown>>(
+export async function init<T extends Record<string, Jsonifiable>>(
   namespace: string,
 ): Promise<SettingsManager<T>> {
   if (managers.has(namespace)) {

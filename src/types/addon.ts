@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { Promisable } from "type-fest";
 
 export const id = z
   .string()
@@ -10,8 +11,8 @@ export type Id = z.infer<typeof id>;
 
 export const author = z.object({
   name: z.string(),
-  discordID: z.string(),
-  github: z.string(),
+  discordID: z.string().optional(),
+  github: z.string().optional(),
 });
 
 export type Author = z.infer<typeof author>;
@@ -40,7 +41,7 @@ export const theme = common.extend({
   splash: z.string().optional(),
 });
 
-export type Theme = z.infer<typeof theme>;
+export type ThemeManifest = z.infer<typeof theme>;
 
 export const plugin = common.extend({
   type: z.literal("replugged-plugin"),
@@ -64,4 +65,15 @@ export const plugin = common.extend({
     .optional(),
 });
 
-export type Plugin = z.infer<typeof plugin>;
+export type PluginManifest = z.infer<typeof plugin>;
+
+export interface PluginExports {
+  start?: () => Promisable<void>;
+  stop?: () => Promisable<void>;
+  [x: string]: unknown;
+}
+
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+export type AddonSettings = {
+  disabled?: string[];
+};
