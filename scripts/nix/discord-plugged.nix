@@ -22,7 +22,8 @@ in
       echo -e 'require("../dist/main.js");' > $out/opt/DiscordCanary/resources/app/index.js
       echo -e '{ "name": "discord-canary", "main": "index.js" }' > $out/opt/DiscordCanary/resources/app/package.json
       mkdir -p $out/opt/DiscordCanary/resources/dist
-      cp ${replugged.replugged}/* $out/opt/DiscordCanary/resources/dist
+      cp -r ${replugged.replugged}/* $out/opt/DiscordCanary/resources/dist
+      cp -r $out/opt/DiscordCanary/resources/dist/i18n $out/opt/DiscordCanary/resources
 
       cp -a --remove-destination $(readlink "$out/opt/DiscordCanary/.DiscordCanary-wrapped") "$out/opt/DiscordCanary/.DiscordCanary-wrapped"
       cp -a --remove-destination $(readlink "$out/opt/DiscordCanary/DiscordCanary") "$out/opt/DiscordCanary/DiscordCanary"
