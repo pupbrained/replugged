@@ -35,6 +35,7 @@
       installPhase = ''
         mkdir -p $out
         cp -r $PWD/dist/* $out
+        cp -r $PWD/i18n $out
       '';
     };
 }
