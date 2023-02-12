@@ -13,11 +13,11 @@ interface BaseTooltipProps {
 }
 
 interface TooltipFunctionChildren extends BaseTooltipProps {
-  children: (props: HTMLAttributes<HTMLSpanElement>) => React.ReactElement;
+  children: (props: HTMLAttributes<HTMLSpanElement>) => React.ReactNode;
 }
 
 interface TooltipCustom extends BaseTooltipProps {
-  children: React.ReactElement;
+  children: React.ReactNode;
 }
 
 type OriginalTooltipType = React.FC<TooltipFunctionChildren>;
@@ -29,8 +29,8 @@ const rawTooltipMod = await waitForModule<Record<string, React.FC>>(
 );
 
 const TooltipMod = getFunctionBySource<React.FC>(
-  /shouldShowTooltip:!1/,
   rawTooltipMod,
+  /shouldShowTooltip:!1/,
 ) as OriginalTooltipType;
 
 const Tooltip: TooltipType = (props) => (

@@ -35,6 +35,13 @@ export async function waitFor(selector: string): Promise<Element> {
 }
 
 /**
+ * Async sleep function
+ */
+export function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
  * Get the React instance of an element
  * @param element Element to get the React instance of
  * @returns React instance
@@ -134,7 +141,7 @@ export async function goToOrJoinServer(invite: string): Promise<void> {
       throw new Error("Could not find transitionTo");
     }
 
-    transitionTo = getFunctionBySource("Transitioning to", transitionToMod as ObjectExports);
+    transitionTo = getFunctionBySource(transitionToMod as ObjectExports, "Transitioning to");
     if (!transitionTo) {
       throw new Error("Could not find transitionTo");
     }
@@ -180,17 +187,23 @@ export function useSetting<
     : F extends null | undefined
     ? T[K] | undefined
     : NonNullable<T[K]> | F;
-  onChange: (newValue: T[K]) => void;
+  onChange: (newValue: T[K] | (Record<string, unknown> & { value: T[K] })) => void;
 } {
   const initial = settings.get(key, fallback);
   const [value, setValue] = React.useState(initial);
 
   return {
     value,
-    onChange: (newValue: T[K]) => {
-      // @ts-expect-error It doesn't understand ig
-      setValue(newValue);
-      settings.set(key, newValue);
+    onChange: (newValue: T[K] | (Record<string, unknown> & { value: T[K] })) => {
+      if (newValue && typeof newValue === "object" && "value" in newValue) {
+        // @ts-expect-error It doesn't understand ig
+        setValue(newValue.value as T[K]);
+        settings.set(key, newValue.value as T[K]);
+      } else {
+        // @ts-expect-error It doesn't understand ig
+        setValue(newValue);
+        settings.set(key, newValue);
+      }
     },
   };
 }

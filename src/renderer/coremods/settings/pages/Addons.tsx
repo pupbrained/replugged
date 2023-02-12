@@ -2,6 +2,7 @@ import { Messages } from "@common/i18n";
 import { React, api, fluxDispatcher, modal, toast, users } from "@common";
 import { Button, Divider, Flex, Switch, Text, TextInput, Tooltip } from "@components";
 import type { RepluggedPlugin, RepluggedTheme } from "src/types";
+import type { Author } from "src/types/addon";
 import "./Addons.css";
 import Icons from "../icons";
 import { Logger, plugins, themes } from "@replugged";
@@ -9,12 +10,14 @@ import { showAddonSettings } from "./AddonSettings";
 
 const logger = Logger.coremod("AddonSettings");
 
-enum AddonType {
+export enum AddonType {
   Plugin = "plugin",
   Theme = "theme",
 }
 
-function getRepluggedNative(type: AddonType) {
+function getRepluggedNative(
+  type: AddonType,
+): typeof window.RepluggedNative.plugins | typeof window.RepluggedNative.themes {
   if (type === AddonType.Plugin) {
     return window.RepluggedNative.plugins;
   }
@@ -24,7 +27,7 @@ function getRepluggedNative(type: AddonType) {
   throw new Error("Invalid addon type");
 }
 
-function getManager(type: AddonType) {
+function getManager(type: AddonType): typeof plugins | typeof themes {
   if (type === AddonType.Plugin) {
     return plugins;
   }
@@ -34,7 +37,7 @@ function getManager(type: AddonType) {
   throw new Error("Invalid addon type");
 }
 
-function getSettingsElement(id: string, type: AddonType) {
+function getSettingsElement(id: string, type: AddonType): React.ComponentType | undefined {
   if (type === AddonType.Plugin) {
     return plugins.getExports(id)?.Settings;
   }
@@ -45,7 +48,7 @@ function getSettingsElement(id: string, type: AddonType) {
   throw new Error("Invalid addon type");
 }
 
-function listAddons(type: AddonType) {
+function listAddons(type: AddonType): Map<string, RepluggedPlugin> | Map<string, RepluggedTheme> {
   if (type === AddonType.Plugin) {
     return plugins.plugins;
   }
@@ -55,21 +58,22 @@ function listAddons(type: AddonType) {
   throw new Error("Invalid addon type");
 }
 
-async function openUserProfile(id: string) {
+async function openUserProfile(id: string): Promise<void> {
   if (!users.getUser(id)) {
     try {
       const { body } = await api.get({
         url: `/users/${id}/profile`,
         query: {
-          // eslint-disable-next-line camelcase
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           with_mutual_friends_count: "true",
-          // eslint-disable-next-line camelcase
+
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           with_mutual_guilds: "true",
         },
       });
       fluxDispatcher.dispatch({ type: "USER_UPDATE", user: body.user });
       fluxDispatcher.dispatch({ type: "USER_PROFILE_FETCH_SUCCESS", ...body });
-    } catch (e) {
+    } catch {
       try {
         const { body } = await api.get({
           url: `/users/${id}`,
@@ -88,7 +92,7 @@ async function openUserProfile(id: string) {
   });
 }
 
-function getAuthors(addon: RepluggedPlugin | RepluggedTheme) {
+function getAuthors(addon: RepluggedPlugin | RepluggedTheme): Author[] {
   return [addon.manifest.author].flat();
 }
 
@@ -103,11 +107,11 @@ function getSourceLink(addon: RepluggedPlugin | RepluggedTheme): string | undefi
   return undefined;
 }
 
-function openFolder(type: AddonType) {
+function openFolder(type: AddonType): void {
   getRepluggedNative(type).openFolder();
 }
 
-async function loadMissing(type: AddonType) {
+async function loadMissing(type: AddonType): Promise<void> {
   if (type === AddonType.Plugin) {
     const manager = plugins;
     const disabled = manager.getDisabled();
@@ -130,17 +134,17 @@ async function loadMissing(type: AddonType) {
   }
 }
 
-function label(
+export function label(
   type: AddonType,
   {
     caps,
     plural,
   }: { caps?: "lower" | "title" | "upper" | undefined; plural?: boolean | undefined } = {},
-) {
+): string {
   caps ??= "lower";
   plural ??= false;
 
-  let base: string = "";
+  let base = "";
   if (type === AddonType.Plugin) {
     base = Messages[`REPLUGGED_PLUGIN${plural ? "S" : ""}`];
   }
@@ -157,7 +161,24 @@ function label(
   return base;
 }
 
-function Authors({ addon }: { addon: RepluggedPlugin | RepluggedTheme }) {
+function replaceVariable(
+  str: string,
+  variables: Record<string, React.ReactElement | string>,
+): React.ReactElement {
+  const els: Array<React.ReactElement | string> = [];
+  let last = 0;
+  for (const [match, el] of Object.entries(variables)) {
+    const index = str.indexOf(`{${match}}`, last);
+    if (index === -1) continue;
+    els.push(<>{str.slice(last, index)}</>);
+    els.push(el);
+    last = index + match.length + 2;
+  }
+  els.push(<>{str.slice(last)}</>);
+  return <>{els}</>;
+}
+
+function Authors({ addon }: { addon: RepluggedPlugin | RepluggedTheme }): React.ReactElement {
   const els = getAuthors(addon).map((author) => (
     <Flex
       key={JSON.stringify(author)}
@@ -182,7 +203,7 @@ function Authors({ addon }: { addon: RepluggedPlugin | RepluggedTheme }) {
         <Tooltip
           text={Messages.REPLUGGED_ADDON_PROFILE_OPEN.format({ type: "GitHub" })}
           className="replugged-addon-icon replugged-addon-icon-author">
-          <a href={`https://github.com/${author.github}`} target="_blank">
+          <a href={`https://github.com/${author.github}`} target="_blank" rel="noopener noreferrer">
             <Icons.GitHub />
           </a>
         </Tooltip>
@@ -190,30 +211,46 @@ function Authors({ addon }: { addon: RepluggedPlugin | RepluggedTheme }) {
     </Flex>
   ));
 
+  let message = "";
+
   if (els.length === 1) {
-    return els[0];
+    // return Messages.REPLUGGED_ADDON_AUTHORS_ONE.format({
+    //   author1: els[0],
+    // });
+    message = Messages.REPLUGGED_ADDON_AUTHORS_ONE.message;
   }
   if (els.length === 2) {
-    return (
-      <span>
-        {els[0]}
-        <span style={{ padding: "0 5px" }}>and</span>
-        {els[1]}
-      </span>
-    );
+    // return Messages.REPLUGGED_ADDON_AUTHORS_TWO.format({
+    //   author1: els[0],
+    //   author2: els[1],
+    // });
+    message = Messages.REPLUGGED_ADDON_AUTHORS_TWO.message;
   }
-  return (
-    <span>
-      {els.slice(0, -1).map((x, i) => (
-        <React.Fragment key={i}>
-          {x}
-          <span style={{ paddingRight: "5px" }}>,</span>
-        </React.Fragment>
-      ))}
-      <span style={{ paddingRight: "5px" }}>and</span>
-      {els[els.length - 1]}
-    </span>
-  );
+  if (els.length === 3) {
+    // return Messages.REPLUGGED_ADDON_AUTHORS_THREE.format({
+    //   author1: els[0],
+    //   author2: els[1],
+    //   author3: els[2],
+    // });
+
+    message = Messages.REPLUGGED_ADDON_AUTHORS_THREE.message;
+  }
+  if (els.length > 3) {
+    // return Messages.REPLUGGED_ADDON_AUTHORS_MANY.format({
+    //   author1: els[0],
+    //   author2: els[1],
+    //   author3: els[2],
+    //   count: els.length - 3,
+    // });
+    message = Messages.REPLUGGED_ADDON_AUTHORS_MANY.message;
+  }
+
+  return replaceVariable(message, {
+    author1: els[0],
+    author2: els[1],
+    author3: els[2],
+    count: (els.length - 3).toString(),
+  });
 }
 
 function Card({
@@ -234,24 +271,21 @@ function Card({
   toggleDisabled: () => void;
   reload: () => void;
   uninstall: () => void;
-}) {
+}): React.ReactElement {
   const sourceLink = getSourceLink(addon);
 
   return (
     <div className="replugged-addon-card">
-      <Flex
-        align={Flex.Align.START}
-        justify={Flex.Justify.BETWEEN}
-        style={{ gap: "15px", marginBottom: "15px" }}>
+      <Flex align={Flex.Align.START} justify={Flex.Justify.BETWEEN} style={{ marginBottom: "5px" }}>
         <span>
           <Text variant="heading-sm/normal" tag="h2" color="header-secondary">
-            <Text variant="heading-lg/bold" tag="span">
+            <Text variant="heading-md/bold" tag="span" color="header-primary">
               {addon.manifest.name}
             </Text>
             <span>
               {" "}
-              <b>v{addon.manifest.version}</b> by{" "}
-            </span>
+              <b>v{addon.manifest.version}</b>
+            </span>{" "}
             <Authors addon={addon} />
           </Text>
         </span>
@@ -262,7 +296,7 @@ function Card({
                 type: label(type, { caps: "title" }),
               })}
               className="replugged-addon-icon">
-              <a href={sourceLink} target="_blank">
+              <a href={sourceLink} target="_blank" rel="noopener noreferrer">
                 <Icons.Link />
               </a>
             </Tooltip>
@@ -314,9 +348,9 @@ function Cards({
   type: AddonType;
   disabled: Set<string>;
   setDisabled: (disabled: Set<string>) => void;
-  list: (RepluggedPlugin | RepluggedTheme)[];
+  list: Array<RepluggedPlugin | RepluggedTheme>;
   refreshList: () => void;
-}) {
+}): React.ReactElement {
   return (
     <div className="replugged-addon-cards">
       {list.map((addon) => (
@@ -422,13 +456,13 @@ function Cards({
   );
 }
 
-export const Addons = (type: AddonType) => {
+export const Addons = (type: AddonType): React.ReactElement => {
   const [disabled, setDisabled] = React.useState<Set<string>>(new Set());
   const [search, setSearch] = React.useState("");
-  const [list, setList] = React.useState<(RepluggedPlugin | RepluggedTheme)[] | null>();
+  const [list, setList] = React.useState<Array<RepluggedPlugin | RepluggedTheme> | null>();
   const [unfilteredCount, setUnfilteredCount] = React.useState(0);
 
-  function refreshList() {
+  function refreshList(): void {
     const list = [...listAddons(type).values()];
     setUnfilteredCount(list.length);
     setList(
@@ -537,5 +571,5 @@ export const Addons = (type: AddonType) => {
   );
 };
 
-export const Plugins = () => Addons(AddonType.Plugin);
-export const Themes = () => Addons(AddonType.Theme);
+export const Plugins = (): React.ReactElement => Addons(AddonType.Plugin);
+export const Themes = (): React.ReactElement => Addons(AddonType.Theme);

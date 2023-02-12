@@ -301,12 +301,12 @@
     "REPLUGGED_ADDON_PROFILE_OPEN": "Avaa {type} Profiili",
     "REPLUGGED_ADDON_RELOAD": "Uudellen Lataa {type}",
     "REPLUGGED_ADDON_SETTINGS": "Avaa {type} Asetukset",
-    "REPLUGGED_ADDON_UNINSTALL_PROMPT_BODY": "Oletko varma että haluat poistaa {type}? Tätä ei voi peruuttaa.",
+    "REPLUGGED_ADDON_UNINSTALL_PROMPT_BODY": "Oletko varma että haluat poistaa tämän {type}? Tätä ei voi peruuttaa.",
     "REPLUGGED_ADDON_UNINSTALL": "Poista {name}",
     "REPLUGGED_ADDONS_FOLDER_OPEN": "Avaa {type} Kansio",
     "REPLUGGED_ADDONS_LOAD_MISSING": "Lataa Puuttuva {type}",
     "REPLUGGED_ADDONS_TITLE_COUNT": "{type} ({count, number})",
-    "REPLUGGED_LIST_RESULTS": "{count, plural, =1 {{count} tulos} other {{count} tulosta}}",
+    "REPLUGGED_LIST_RESULTS": "{count, plural, =1 {# tulos} other {# tulosta}}",
     "REPLUGGED_NO_ADDONS_INSTALLED": "Ei {type} asennettuna.",
     "REPLUGGED_QUICKCSS_CHANGES_APPLY": "Tallenna Muutokset",
     "REPLUGGED_CONFIRM_INSTALL": "Asenna",
@@ -328,5 +328,8 @@
     "REPLUGGED_TOAST_INSTALLER_ADDON_INSTALL_FAILED": "{name} asentaminen epäonnistui.",
     "REPLUGGED_TOAST_INSTALLER_ADDON_LOAD_FAILED": "{name} asennettiin mutta sitä ei voitu ladata.",
     "REPLUGGED_TOAST_INSTALLER_ADDON_CANCELED_INSTALL": "Asennus peruttu.",
-    "REPLUGGED_TOAST_INSTALLER_ADDON_INSTALL_SUCCESS": "{name} asennettiin onnistuneesti."
+    "REPLUGGED_TOAST_INSTALLER_ADDON_INSTALL_SUCCESS": "{name} asennettiin onnistuneesti.",
+    "REPLUGGED_TOAST_ADDON_DISABLE_SUCCESS": "{name} Poistettiin Käytöstä",
+    "REPLUGGED_TOAST_ADDON_ENABLE_SUCCESS": "{name} Otettiin Käyttöön",
+    "REPLUGGED_TOAST_INSTALLER_ADDON_FETCH_INFO_FAILED": "Lisäosan tietojen saaminen epäonnistui."
 }

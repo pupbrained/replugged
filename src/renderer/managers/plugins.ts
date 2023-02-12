@@ -41,9 +41,10 @@ export function getExports(id: string): PluginExports | undefined {
 }
 
 function register(plugin: RepluggedPlugin): void {
+  const existingExports = plugins.get(plugin.manifest.id)?.exports;
   plugins.set(plugin.manifest.id, {
     ...plugin,
-    exports: undefined,
+    exports: existingExports,
   });
 }
 
@@ -215,9 +216,10 @@ export async function uninstall(id: string): Promise<void> {
   if (!plugins.has(id)) {
     throw new Error(`Plugin "${id}" does not exist.`);
   }
-  await window.RepluggedNative.plugins.uninstall(id);
+  const plugin = plugins.get(id)!;
   await stop(id);
   plugins.delete(id);
+  await window.RepluggedNative.plugins.uninstall(plugin.path);
 }
 
 export function getDisabled(): string[] {

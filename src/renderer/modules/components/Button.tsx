@@ -1,7 +1,8 @@
 import { filters, waitForModule } from "../webpack";
 import type { ReactComponent } from "../../../types/util";
 import type React from "react";
-import { Divider, Flex, FormItem, FormText, Tooltip } from ".";
+import { Divider, Flex, FormText, Tooltip } from ".";
+import type { ObjectExports } from "../../../types";
 
 export type ButtonType = ReactComponent<{
   onClick: () => void;
@@ -32,11 +33,12 @@ export type ButtonType = ReactComponent<{
   Looks: Record<"FILLED" | "INVERTED" | "OUTLINED" | "LINK" | "BLANK", string>;
 };
 
-export const Button = (await waitForModule(filters.bySource('"onDropdownClick"'))) as ButtonType;
+export const Button = (await waitForModule(filters.bySource('"dropdownSize"'))) as ButtonType;
 
-const classes = (await waitForModule(filters.byProps("labelRow"))) as Record<string, string>;
-
-type ButtonItemProps = {
+const classes = await waitForModule<
+  ObjectExports & Record<"labelRow" | "title" | "note" | "dividerDefault", string>
+>(filters.byProps("labelRow", "title", "note", "dividerDefault"));
+interface ButtonItemProps {
   onClick: () => void;
   button: string;
   note?: string;
@@ -45,40 +47,43 @@ type ButtonItemProps = {
   success?: boolean;
   color?: string;
   disabled?: boolean;
-};
+}
 
 export type ButtonItemType = React.FC<React.PropsWithChildren<ButtonItemProps>>;
 
-export const ButtonItem = (props: React.PropsWithChildren<ButtonItemProps>) => {
+export const ButtonItem = (props: React.PropsWithChildren<ButtonItemProps>): React.ReactElement => {
+  const button = (
+    <Button
+      color={props.success ? Button.Colors.GREEN : props.color || Button.Colors.BRAND}
+      disabled={props.disabled}
+      onClick={() => props.onClick()}>
+      {props.button}
+    </Button>
+  );
+
   return (
-    <div
-      className={`${Flex.Direction.VERTICAL} ${Flex.Justify.START} ${Flex.Align.STRETCH} ${Flex.Wrap.NO_WRAP}`}
-      style={{ marginBottom: 20 }}>
-      <FormItem>
-        <div style={{ cursor: "pointer", alignItems: "center", display: "flex" }}>
-          <div>
-            <div className={classes.labelRow}>
-              <label className={classes.title}>{props.children}</label>
-            </div>
-            <FormText.DESCRIPTION className={classes.note}>{props.note}</FormText.DESCRIPTION>
+    <div style={{ marginBottom: 20 }}>
+      <Flex justify={Flex.Justify.END}>
+        <Flex.Child>
+          <div className={classes.labelRow}>
+            <label className={classes.title}>{props.children}</label>
+            {props.tooltipText ? (
+              <Tooltip
+                text={props.tooltipText}
+                position={props.tooltipPosition}
+                shouldShow={Boolean(props.tooltipText)}
+                className={Flex.Align.CENTER}
+                style={{ height: "100%" }}>
+                {button}
+              </Tooltip>
+            ) : (
+              button
+            )}
           </div>
-          {props.tooltipText && (
-            <Tooltip
-              text={props.tooltipText}
-              position={props.tooltipPosition}
-              shouldShow={Boolean(props.tooltipText)}>
-              <Button
-                color={props.success ? Button.Colors.GREEN : props.color || Button.Colors.BRAND}
-                disabled={props.disabled}
-                onClick={() => props.onClick()}
-                style={{ marginLeft: 5, position: "absolute", right: "7%" }}>
-                {props.button}
-              </Button>
-            </Tooltip>
-          )}
-        </div>
-        <Divider className={classes.dividerDefault} />
-      </FormItem>
+          <FormText.DESCRIPTION className={classes.note}>{props.note}</FormText.DESCRIPTION>
+        </Flex.Child>
+      </Flex>
+      <Divider className={classes.dividerDefault} />
     </div>
   );
 };
