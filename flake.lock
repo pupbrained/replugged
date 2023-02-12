@@ -2,11 +2,11 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1671108576,
-        "narHash": "sha256-6ggOL6KoaELNA1562tnPjtAnQ9SwsKRTgeuaXvPzCwI=",
+        "lastModified": 1676110339,
+        "narHash": "sha256-kOS/L8OOL2odpCOM11IevfHxcUeE0vnZUQ74EOiwXcs=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "0f5996b524c91677891a432cc99c7567c7c402b1",
+        "rev": "e5530aba13caff5a4f41713f1265b754dc2abfd8",
         "type": "github"
       },
       "original": {
@@ -19,15 +19,15 @@
     "pnpm2nix": {
       "flake": false,
       "locked": {
-        "lastModified": 1665536101,
-        "narHash": "sha256-XkCpp7jmeP2jhlrBWtPe9/C3nTHbgVENPMqCL56r6I4=",
-        "owner": "pupbrained",
+        "lastModified": 1672751784,
+        "narHash": "sha256-0h4lB65h9/VFLVITdpJMqkRw30IJZw9VfYmjRD1gZH0=",
+        "owner": "jpetrucciani",
         "repo": "pnpm2nix",
-        "rev": "d83de7d4c76b358e12a0e8a908dc956efed7f034",
+        "rev": "39f0ba20ddf726576c2881eb6f753dd9a57c1f18",
         "type": "github"
       },
       "original": {
-        "owner": "pupbrained",
+        "owner": "jpetrucciani",
         "repo": "pnpm2nix",
         "type": "github"
       }

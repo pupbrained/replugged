@@ -4,7 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     pnpm2nix = {
-      url = "github:pupbrained/pnpm2nix";
+      url = "github:jpetrucciani/pnpm2nix";
       flake = false;
     };
   };
