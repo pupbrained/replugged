@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/unified-signatures */
-import type { AnyFunction } from "../../../types/util";
+import type { AnyFunction } from "../../types/util";
 import type {
   Filter,
   GetModuleOptions,
@@ -18,7 +18,7 @@ import type {
   WebpackChunkGlobal,
   WebpackModule,
   WebpackRequire,
-} from "../../../types/webpack";
+} from "../../types/webpack";
 
 // Handlers
 
@@ -412,7 +412,7 @@ export async function waitForModule<
   T extends RawModule | ModuleExports = RawModule | ModuleExports,
 >(filter: Filter, options: WaitForOptions = {}): Promise<T> {
   const existing = getModule(filter, { all: false, raw: options.raw }) as
-    | (typeof options["raw"] extends true ? T & RawModule : T & ModuleExports)
+    | ((typeof options)["raw"] extends true ? T & RawModule : T & ModuleExports)
     | undefined;
   if (existing) {
     return Promise.resolve(existing);
