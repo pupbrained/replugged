@@ -2,6 +2,7 @@
   description = "A Discord client mod that does things differently";
 
   inputs = {
+    # nixpkgs.url = "github:pupbrained/nixpkgs-replugged";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   };
 
