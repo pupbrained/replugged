@@ -7,19 +7,10 @@
     {
       name = "replugged";
 
-      src = ../../.;
+      src = ../..;
 
       packageJSON = ../../package.json;
       yarnLock = ../../yarn.lock;
-
-      # overrides = {
-      #   electron = drv:
-      #     drv.overrideAttrs (old: {
-      #       ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
-      #     });
-      # };
-
-      allowImpure = true;
 
       linkDevDependencies = true;
       outputs = ["out"];

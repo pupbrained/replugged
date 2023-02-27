@@ -18,32 +18,32 @@ in
     paths = [discord-canary.out];
 
     postBuild = ''
-      mkdir -p $out/opt/DiscordCanary/resources/app
-      echo -e 'require("../dist/main.js");' > $out/opt/DiscordCanary/resources/app/index.js
-      echo -e '{ "name": "discord-canary", "main": "index.js" }' > $out/opt/DiscordCanary/resources/app/package.json
-      mkdir -p $out/opt/DiscordCanary/resources/dist
-      cp -r ${replugged.replugged}/* $out/opt/DiscordCanary/resources/dist
-      cp -r $out/opt/DiscordCanary/resources/dist/i18n $out/opt/DiscordCanary/resources
+      mkdir -p '$out/Applications/Discord Canary.app/Contents/Resources/app'
+      echo -e 'require("../dist/main.js");' > '$out/Applications/Discord Canary.app/Contents/Resources/app/index.js'
+      echo -e '{ "name": "discord-canary", "main": "index.js" }' > '$out/Applications/Discord Canary.app/Contents/Resources/app/package.json'
+      mkdir -p '$out/Applications/Discord Canary.app/Contents/Resources/dist'
+      cp -r ${replugged.replugged}/* '$out/Applications/Discord Canary.app/Contents/Resources/dist'
+      cp -r '$out/Applications/Discord Canary.app/Contents/Resources/dist/i18n' '$out/Applications/Discord Canary.app/Contents/Resources'
 
-      cp -a --remove-destination $(readlink "$out/opt/DiscordCanary/.DiscordCanary-wrapped") "$out/opt/DiscordCanary/.DiscordCanary-wrapped"
-      cp -a --remove-destination $(readlink "$out/opt/DiscordCanary/DiscordCanary") "$out/opt/DiscordCanary/DiscordCanary"
+      cp -a --remove-destination $(readlink "$out/Applications/Discord Canary.app/.DiscordCanary-wrapped") "$out/Applications/Discord Canary.app/.DiscordCanary-wrapped"
+      cp -a --remove-destination $(readlink "$out/Applications/Discord Canary.app/DiscordCanary") "$out/Applications/Discord Canary.app/DiscordCanary"
 
-      mv $out/opt/DiscordCanary/resources/app.asar $out/opt/DiscordCanary/resources/app.orig.asar
+      mv '$out/Applications/Discord Canary.app/Contents/Resources/app.asar' '$out/Applications/Discord Canary.app/Contents/Resources/app.orig.asar'
 
-      if grep '\0' $out/opt/DiscordCanary/DiscordCanary && wrapperCmd=$(${extractCmd} $out/opt/DiscordCanary/DiscordCanary) && [[ $wrapperCmd ]]; then
+      if grep '\0' '$out/Applications/Discord Canary.app/DiscordCanary' && wrapperCmd=$(${extractCmd} '$out/Applications/Discord Canary.app/DiscordCanary') && [[ $wrapperCmd ]]; then
         parseMakeCWrapperCall() {
             shift
             oldExe=$1; shift
             oldWrapperArgs=("$@")
         }
         eval "parseMakeCWrapperCall ''${wrapperCmd//"${discord-canary.out}"/"$out"}"
-        makeWrapper $oldExe $out/opt/DiscordCanary/DiscordCanary "''${oldWrapperArgs[@]}"
+        makeWrapper $oldExe '$out/Applications/Discord Canary.app/DiscordCanary' "''${oldWrapperArgs[@]}"
       else
-        substituteInPlace $out/opt/DiscordCanary/DiscordCanary \
+        substituteInPlace '$out/Applications/Discord Canary.app/DiscordCanary' \
         --replace '${discord-canary.out}' "$out"
       fi
 
-      substituteInPlace $out/opt/DiscordCanary/DiscordCanary --replace '${discord-canary.out}' "$out"
+      substituteInPlace '$out/Applications/Discord Canary.app/DiscordCanary' --replace '${discord-canary.out}' "$out"
     '';
 
     meta.mainProgram =
