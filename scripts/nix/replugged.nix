@@ -1,24 +1,23 @@
 {
   pkgs,
   revision,
-  mkPnpmPackage,
 }: rec {
   replugged =
-    mkPnpmPackage
+    pkgs.mkYarnPackage
     {
       name = "replugged";
 
       src = ../../.;
 
       packageJSON = ../../package.json;
-      pnpmLock = ../../pnpm-lock.yaml;
+      yarnLock = ../../yarn.lock;
 
-      overrides = {
-        electron = drv:
-          drv.overrideAttrs (old: {
-            ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
-          });
-      };
+      # overrides = {
+      #   electron = drv:
+      #     drv.overrideAttrs (old: {
+      #       ELECTRON_SKIP_BINARY_DOWNLOAD = "1";
+      #     });
+      # };
 
       allowImpure = true;
 
@@ -29,7 +28,7 @@
 
       buildPhase = ''
         cp -r $PWD/node_modules/replugged/* $PWD
-        ${pkgs.nodePackages.pnpm}/bin/pnpm build nix ${revision}
+        ${pkgs.nodePackages.yarn}/bin/yarn build nix ${revision}
       '';
 
       installPhase = ''

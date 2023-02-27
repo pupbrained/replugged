@@ -3,16 +3,11 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    pnpm2nix = {
-      url = "github:jpetrucciani/pnpm2nix";
-      flake = false;
-    };
   };
 
   outputs = {
     self,
     nixpkgs,
-    pnpm2nix,
     ...
   } @ inputs: let
     forAllSystems = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed;
@@ -25,10 +20,6 @@
           config.allowUnfree = true;
         }
         // {runCommandNoCC = pkgs.runCommand;};
-
-      pnpm2nix' = import pnpm2nix {
-        inherit pkgs;
-      };
     in rec {
       allowImpure = true;
 
@@ -38,7 +29,6 @@
           if self ? rev
           then self.rev
           else "dev";
-        inherit (pnpm2nix') mkPnpmPackage;
       };
     });
   };
