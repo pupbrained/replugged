@@ -27,14 +27,15 @@
       nativeBuildInputs = with pkgs; [git];
 
       buildPhase = ''
-        cp -r $PWD/node_modules/replugged/* $PWD
-        ${pkgs.nodePackages.yarn}/bin/yarn build nix ${revision}
+        yarn build nix ${revision}
       '';
 
       installPhase = ''
         mkdir -p $out
-        cp -r $PWD/dist/* $out
-        cp -r $PWD/i18n $out
+        cp -r $PWD/deps/replugged/dist/* $out
+        cp -r $PWD/deps/replugged/i18n $out
       '';
+
+      distPhase = "#";
     };
 }
